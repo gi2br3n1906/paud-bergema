@@ -36,8 +36,18 @@ const alignmentClasses = computed(() => {
         return 'ltr:origin-top-left rtl:origin-top-right start-0';
     } else if (props.align === 'right') {
         return 'ltr:origin-top-right rtl:origin-top-left end-0';
+    } else if (props.align === 'top') {
+        return 'ltr:origin-bottom-left rtl:origin-bottom-right start-0';
     } else {
         return 'origin-top';
+    }
+});
+
+const positionClasses = computed(() => {
+    if (props.align === 'top') {
+        return 'bottom-full mb-2';
+    } else {
+        return 'mt-2';
     }
 });
 
@@ -67,8 +77,8 @@ const open = ref(false);
         >
             <div
                 v-show="open"
-                class="absolute z-50 mt-2 rounded-md shadow-lg"
-                :class="[widthClass, alignmentClasses]"
+                class="absolute z-50 rounded-md shadow-lg"
+                :class="[widthClass, alignmentClasses, positionClasses]"
                 style="display: none"
                 @click="open = false"
             >
