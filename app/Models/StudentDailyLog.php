@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\DailyLogType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,18 +12,25 @@ class StudentDailyLog extends Model
 
     protected $fillable = [
         'student_id',
-        'log_date',
-        'log_type',
-        'data',
         'recorded_by',
+        'date',
+        'attendance_status',
+        'arrival_time',
+        'pickup_time',
+        'mood',
+        'activities',
+        'meals',
+        'nap_notes',
+        'health_notes',
         'notes',
     ];
 
     protected function casts(): array
     {
         return [
-            'log_date' => 'date',
-            'log_type' => DailyLogType::class,
+            'date' => 'date',
+            'arrival_time' => 'datetime:H:i',
+            'pickup_time' => 'datetime:H:i',
         ];
     }
 
@@ -35,64 +41,43 @@ class StudentDailyLog extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function recorder(): BelongsTo
+    public function recordedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
     }
 
-    // Accessors & Mutators with dynamic casts
-
-    protected function data(): \Illuminate\Database\Eloquent\Casts\Attribute
-    {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
-            get: function (mixed $value) {
-                if ($value === null) {
-                    return null;
-                }
-
-                $decoded = is_string($value) ? json_decode($value, true) : $value;
-
-                return match($this->log_type) {
-                    DailyLogType::PRESENCE => \App\DataTransferObjects\DailyLog\PresenceData::from($decoded),
-                    DailyLogType::WORSHIP => \App\DataTransferObjects\DailyLog\WorshipData::from($decoded),
-                    DailyLogType::QURAN => \App\DataTransferObjects\DailyLog\QuranProgressData::from($decoded),
-                    default => $decoded,
-                };
-            },
-            set: function (mixed $value) {
-                if ($value === null) {
-                    return null;
-                }
-
-                // If it's a DTO, convert to array
-                if (method_exists($value, 'toArray')) {
-                    return json_encode($value->toArray());
-                }
-
-                // If it's already an array
-                if (is_array($value)) {
-                    return json_encode($value);
-                }
-
-                return $value;
-            }
-        );
-    }
-
     // Scopes
-
-    public function scopeForDate($query, $date)
-    {
-        return $query->whereDate('log_date', $date);
-    }
-
-    public function scopeOfType($query, DailyLogType $type)
-    {
-        return $query->where('log_type', $type);
-    }
 
     public function scopeForStudent($query, int $studentId)
     {
         return $query->where('student_id', $studentId);
+    }
+
+    public function scopeForDate($query, string $date)
+    {
+        return $query->where('date', $date);
+    }
+
+    public function scopeRecent($query, int $limit = 10)
+    {
+        return $query->orderBy('date', 'desc')->limit($limit);
+    }
+
+    // Helper methods
+
+    public function isPresent(): bool
+    {
+        return $this->attendance_status === 'Hadir';
+    }
+
+    public function getMoodEmoji(): string
+    {
+        return match ($this->mood) {
+            'Senang' => '😊',
+            'Biasa' => '😐',
+            'Sedih' => '😢',
+            'Rewel' => '😠',
+            default => '😐',
+        };
     }
 }

@@ -49,8 +49,7 @@ class ReportCardController extends Controller
 
         // Get attendance summary
         $attendanceSummary = StudentDailyLog::where('student_id', $studentId)
-            ->where('classroom_id', $student->classroom_id)
-            ->whereBetween('log_date', [$academicTerm->start_date, $academicTerm->end_date])
+            ->whereBetween('date', [$academicTerm->start_date, $academicTerm->end_date])
             ->select('attendance_status', DB::raw('count(*) as total'))
             ->groupBy('attendance_status')
             ->get()

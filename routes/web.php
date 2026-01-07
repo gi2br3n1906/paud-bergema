@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AcademicYearController;
 use App\Http\Controllers\Admin\AssessmentAspectController;
 use App\Http\Controllers\Admin\ClassroomController;
+use App\Http\Controllers\Admin\DapodikImportController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\TeacherController;
@@ -51,6 +52,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Assessment Aspects Management
     Route::resource('assessment-aspects', AssessmentAspectController::class)->except(['show', 'create', 'edit']);
+
+    // Dapodik Import
+    Route::get('/dapodik-import', [DapodikImportController::class, 'index'])->name('dapodik-import.index');
+    Route::post('/dapodik-import', [DapodikImportController::class, 'import'])->name('dapodik-import.store');
 });
 
 // Teacher Routes
@@ -77,6 +82,21 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/reports', [ReportCardController::class, 'index'])->name('reports.index');
     Route::get('/reports/{classroom}/{term}/students', [ReportCardController::class, 'students'])->name('reports.students');
     Route::get('/reports/{student}/{term}', [ReportCardController::class, 'preview'])->name('reports.preview');
+
+    // Class Journals Management
+    Route::get('/class-journals', [\App\Http\Controllers\Teacher\ClassJournalController::class, 'index'])->name('class-journals.index');
+    Route::post('/class-journals', [\App\Http\Controllers\Teacher\ClassJournalController::class, 'store'])->name('class-journals.store');
+    Route::put('/class-journals/{classJournal}', [\App\Http\Controllers\Teacher\ClassJournalController::class, 'update'])->name('class-journals.update');
+    Route::delete('/class-journals/{classJournal}', [\App\Http\Controllers\Teacher\ClassJournalController::class, 'destroy'])->name('class-journals.destroy');
+
+    // Student Daily Logs Management
+    Route::get('/daily-logs', [\App\Http\Controllers\Teacher\StudentDailyLogController::class, 'index'])->name('daily-logs.index');
+    Route::get('/daily-logs/create', [\App\Http\Controllers\Teacher\StudentDailyLogController::class, 'create'])->name('daily-logs.create');
+    Route::post('/daily-logs', [\App\Http\Controllers\Teacher\StudentDailyLogController::class, 'store'])->name('daily-logs.store');
+    Route::get('/daily-logs/{dailyLog}/edit', [\App\Http\Controllers\Teacher\StudentDailyLogController::class, 'edit'])->name('daily-logs.edit');
+    Route::put('/daily-logs/{dailyLog}', [\App\Http\Controllers\Teacher\StudentDailyLogController::class, 'update'])->name('daily-logs.update');
+    Route::delete('/daily-logs/{dailyLog}', [\App\Http\Controllers\Teacher\StudentDailyLogController::class, 'destroy'])->name('daily-logs.destroy');
+    Route::get('/daily-logs/students-by-classroom', [\App\Http\Controllers\Teacher\StudentDailyLogController::class, 'getStudentsByClassroom'])->name('daily-logs.students-by-classroom');
 });
 
 // Parent Routes
