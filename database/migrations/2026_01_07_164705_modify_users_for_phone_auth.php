@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('email')->nullable()->change();
 
             // Make phone_number unique and NOT nullable (primary login credential for parents)
-            $table->string('phone_number', 20)->nullable(false)->unique()->change();
+            // Increased to 25 chars to accommodate international format (+62xxx)
+            $table->string('phone_number', 25)->nullable(false)->unique()->change();
 
             // Add index for faster authentication lookups
             $table->index('phone_number');
@@ -35,7 +36,7 @@ return new class extends Migration
             // Revert phone_number back to nullable and remove unique constraint
             $table->dropUnique(['phone_number']);
             $table->dropIndex(['phone_number']);
-            $table->string('phone_number', 20)->nullable()->change();
+            $table->string('phone_number', 25)->nullable()->change();
         });
     }
 };
