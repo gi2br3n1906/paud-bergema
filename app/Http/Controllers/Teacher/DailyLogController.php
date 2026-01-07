@@ -17,10 +17,8 @@ class DailyLogController extends Controller
     {
         $teacher = Auth::user();
 
-        // Get classrooms taught by this teacher
-        $classrooms = Classroom::where('teacher_id', $teacher->id)
-            ->with('academicYear')
-            ->get();
+        // Get all classrooms (teacher can access all classes for cross-class documentation)
+        $classrooms = Classroom::with('academicYear')->get();
 
         // Get selected classroom ID or use first classroom
         $selectedClassroomId = $request->get('classroom_id', $classrooms->first()?->id);
@@ -71,10 +69,8 @@ class DailyLogController extends Controller
             'logs.*.notes' => 'nullable|string',
         ]);
 
-        // Verify teacher owns this classroom
-        $classroom = Classroom::where('id', $validated['classroom_id'])
-            ->where('teacher_id', Auth::id())
-            ->firstOrFail();
+        // Allow teacher to record for any classroom (cross-class documentation)
+        $classroom = Classroom::findOrFail($validated['classroom_id']);
 
         foreach ($validated['logs'] as $logData) {
             StudentDailyLog::updateOrCreate(

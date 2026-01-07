@@ -14,14 +14,17 @@ class Student extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'nisn',
         'name',
         'nickname',
         'date_of_birth',
+        'place_of_birth',
         'gender',
+        'address',
         'photo_url',
         'classroom_id',
         'enrollment_date',
-        'is_active',
+        'status',
         'notes',
     ];
 
@@ -30,7 +33,6 @@ class Student extends Model
         return [
             'date_of_birth' => 'date',
             'enrollment_date' => 'date',
-            'is_active' => 'boolean',
         ];
     }
 
@@ -67,7 +69,7 @@ class Student extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('status', 'Aktif');
     }
 
     public function scopeInClassroom($query, int $classroomId)

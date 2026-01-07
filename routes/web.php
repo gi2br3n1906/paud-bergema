@@ -8,8 +8,11 @@ use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Teacher\AssessmentController;
 use App\Http\Controllers\Teacher\DailyLogController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
+use App\Http\Controllers\Teacher\GrowthRecordController;
+use App\Http\Controllers\Teacher\ReportCardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -23,8 +26,11 @@ Route::get('/', function () {
             default => redirect()->route('login'),
         };
     }
-    return redirect()->route('login');
-});
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+    ]);
+})->name('welcome');
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -54,6 +60,23 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     // Daily Logs Management
     Route::get('/daily-logs', [DailyLogController::class, 'index'])->name('daily-logs.index');
     Route::post('/daily-logs', [DailyLogController::class, 'store'])->name('daily-logs.store');
+
+    // Growth Records Management
+    Route::get('/growth-records', [GrowthRecordController::class, 'index'])->name('growth-records.index');
+    Route::get('/growth-records/{student}', [GrowthRecordController::class, 'show'])->name('growth-records.show');
+    Route::post('/growth-records', [GrowthRecordController::class, 'store'])->name('growth-records.store');
+    Route::put('/growth-records/{growthRecord}', [GrowthRecordController::class, 'update'])->name('growth-records.update');
+    Route::delete('/growth-records/{growthRecord}', [GrowthRecordController::class, 'destroy'])->name('growth-records.destroy');
+
+    // Assessments Management
+    Route::get('/assessments', [AssessmentController::class, 'index'])->name('assessments.index');
+    Route::get('/assessments/{classroom}/{term}', [AssessmentController::class, 'form'])->name('assessments.form');
+    Route::post('/assessments', [AssessmentController::class, 'store'])->name('assessments.store');
+
+    // Report Cards Management
+    Route::get('/reports', [ReportCardController::class, 'index'])->name('reports.index');
+    Route::get('/reports/{classroom}/{term}/students', [ReportCardController::class, 'students'])->name('reports.students');
+    Route::get('/reports/{student}/{term}', [ReportCardController::class, 'preview'])->name('reports.preview');
 });
 
 // Parent Routes

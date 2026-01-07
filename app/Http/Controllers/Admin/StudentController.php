@@ -24,8 +24,12 @@ class StudentController extends Controller
             ->when($request->classroom_id, function ($query, $classroomId) {
                 $query->where('classroom_id', $classroomId);
             })
-            ->when($request->is_active !== null, function ($query) use ($request) {
-                $query->where('is_active', $request->is_active);
+            ->when($request->filled('is_active'), function ($query) use ($request) {
+                if (filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN)) {
+                    $query->where('status', 'Aktif');
+                } else {
+                    $query->where('status', '!=', 'Aktif');
+                }
             });
 
         $students = $query->latest()->paginate(10)->withQueryString();
@@ -44,13 +48,17 @@ class StudentController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'nisn' => 'nullable|string|max:20|unique:students,nisn',
             'name' => 'required|string|max:150',
             'nickname' => 'nullable|string|max:50',
+            'gender' => 'required|in:Laki-laki,Perempuan',
             'date_of_birth' => 'required|date',
-            'gender' => 'required|in:male,female',
+            'place_of_birth' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
             'photo' => 'nullable|image|max:2048',
             'classroom_id' => 'nullable|exists:classrooms,id',
             'enrollment_date' => 'required|date',
+            'status' => 'required|in:Aktif,Lulus,Pindah,Keluar',
             'notes' => 'nullable|string',
             'parent_ids' => 'nullable|array',
             'parent_ids.*' => 'exists:users,id',
@@ -79,14 +87,17 @@ class StudentController extends Controller
     public function update(Request $request, Student $student): RedirectResponse
     {
         $validated = $request->validate([
+            'nisn' => 'nullable|string|max:20|unique:students,nisn,' . $student->id,
             'name' => 'required|string|max:150',
             'nickname' => 'nullable|string|max:50',
+            'gender' => 'required|in:Laki-laki,Perempuan',
             'date_of_birth' => 'required|date',
-            'gender' => 'required|in:male,female',
+            'place_of_birth' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
             'photo' => 'nullable|image|max:2048',
             'classroom_id' => 'nullable|exists:classrooms,id',
             'enrollment_date' => 'required|date',
-            'is_active' => 'required|boolean',
+            'status' => 'required|in:Aktif,Lulus,Pindah,Keluar',
             'notes' => 'nullable|string',
             'parent_ids' => 'nullable|array',
             'parent_ids.*' => 'exists:users,id',

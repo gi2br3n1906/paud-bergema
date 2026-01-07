@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
             $table->date('measurement_date');
-            $table->decimal('height_cm', 5, 2);
-            $table->decimal('weight_kg', 5, 2);
-            $table->decimal('head_circumference_cm', 5, 2)->nullable();
+            $table->decimal('height', 5, 2)->comment('Height in cm');
+            $table->decimal('weight', 5, 2)->comment('Weight in kg');
+            $table->decimal('head_circumference', 5, 2)->nullable()->comment('Head circumference in cm');
             $table->decimal('z_score_height', 4, 2)->nullable()->comment('WHO 2006 Z-Score');
             $table->decimal('z_score_weight', 4, 2)->nullable()->comment('WHO 2006 Z-Score');
             $table->enum('growth_status', ['normal', 'stunting', 'overweight', 'underweight'])->nullable();

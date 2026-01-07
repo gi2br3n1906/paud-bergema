@@ -16,7 +16,7 @@ class DashboardController extends Controller
     {
         // Get statistics for dashboard
         $stats = [
-            'total_students' => Student::where('is_active', true)->count(),
+            'total_students' => Student::where('status', 'Aktif')->count(),
             'total_teachers' => User::where('role', 'teacher')->where('is_active', true)->count(),
             'total_classrooms' => Classroom::count(),
             'active_academic_year' => AcademicYear::active()->first()?->name,

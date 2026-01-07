@@ -24,14 +24,17 @@ const showDeleteModal = ref(false)
 
 const form = useForm({
     id: null,
+    nisn: '',
     name: '',
     nickname: '',
     date_of_birth: '',
-    gender: 'male',
+    place_of_birth: '',
+    gender: 'Laki-laki',
+    address: '',
     photo: null,
     classroom_id: null,
     enrollment_date: new Date().toISOString().split('T')[0],
-    is_active: true,
+    status: 'Aktif',
     notes: '',
     parent_ids: []
 })
@@ -52,13 +55,16 @@ const openCreateModal = () => {
 const openEditModal = (student) => {
     isEditing.value = true
     form.id = student.id
+    form.nisn = student.nisn
     form.name = student.name
     form.nickname = student.nickname || ''
     form.date_of_birth = student.date_of_birth
+    form.place_of_birth = student.place_of_birth || ''
     form.gender = student.gender
+    form.address = student.address || ''
     form.classroom_id = student.classroom_id
     form.enrollment_date = student.enrollment_date
-    form.is_active = student.is_active
+    form.status = student.status
     form.notes = student.notes || ''
     form.parent_ids = student.parents?.map(p => p.id) || []
     form.clearErrors()
@@ -254,7 +260,7 @@ const getAge = (dateOfBirth) => {
                                     {{ student.classroom?.name || '-' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ student.gender === 'male' ? 'Laki-laki' : 'Perempuan' }}
+                                    {{ student.gender }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ getAge(student.date_of_birth) }} tahun
@@ -271,12 +277,16 @@ const getAge = (dateOfBirth) => {
                                     <span
                                         :class="[
                                             'inline-flex rounded-full px-2 text-xs font-semibold leading-5',
-                                            student.is_active
+                                            student.status === 'Aktif'
                                                 ? 'bg-green-100 text-green-800'
+                                                : student.status === 'Lulus'
+                                                ? 'bg-blue-100 text-blue-800'
+                                                : student.status === 'Pindah'
+                                                ? 'bg-yellow-100 text-yellow-800'
                                                 : 'bg-red-100 text-red-800'
                                         ]"
                                     >
-                                        {{ student.is_active ? 'Aktif' : 'Tidak Aktif' }}
+                                        {{ student.status }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
@@ -333,6 +343,18 @@ const getAge = (dateOfBirth) => {
                 <form @submit.prevent="submitForm" class="space-y-4">
                     <div class="grid gap-4 md:grid-cols-2">
                         <div>
+                            <InputLabel for="nisn" value="NISN" />
+                            <TextInput
+                                id="nisn"
+                                v-model="form.nisn"
+                                type="text"
+                                class="mt-1 block w-full"
+                                maxlength="20"
+                            />
+                            <InputError :message="form.errors.nisn" class="mt-2" />
+                        </div>
+
+                        <div>
                             <InputLabel for="name" value="Nama Lengkap *" />
                             <TextInput
                                 id="name"
@@ -356,6 +378,20 @@ const getAge = (dateOfBirth) => {
                         </div>
 
                         <div>
+                            <InputLabel for="gender" value="Jenis Kelamin *" />
+                            <select
+                                id="gender"
+                                v-model="form.gender"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required
+                            >
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                            <InputError :message="form.errors.gender" class="mt-2" />
+                        </div>
+
+                        <div>
                             <InputLabel for="date_of_birth" value="Tanggal Lahir *" />
                             <TextInput
                                 id="date_of_birth"
@@ -368,18 +404,29 @@ const getAge = (dateOfBirth) => {
                         </div>
 
                         <div>
-                            <InputLabel for="gender" value="Jenis Kelamin *" />
-                            <select
-                                id="gender"
-                                v-model="form.gender"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                required
-                            >
-                                <option value="male">Laki-laki</option>
-                                <option value="female">Perempuan</option>
-                            </select>
-                            <InputError :message="form.errors.gender" class="mt-2" />
+                            <InputLabel for="place_of_birth" value="Tempat Lahir" />
+                            <TextInput
+                                id="place_of_birth"
+                                v-model="form.place_of_birth"
+                                type="text"
+                                class="mt-1 block w-full"
+                            />
+                            <InputError :message="form.errors.place_of_birth" class="mt-2" />
                         </div>
+                    </div>
+
+                    <div>
+                        <InputLabel for="address" value="Alamat" />
+                        <textarea
+                            id="address"
+                            v-model="form.address"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            rows="2"
+                        ></textarea>
+                        <InputError :message="form.errors.address" class="mt-2" />
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
 
                         <div>
                             <InputLabel for="classroom_id" value="Kelas" />
@@ -420,17 +467,20 @@ const getAge = (dateOfBirth) => {
                             <InputError :message="form.errors.photo" class="mt-2" />
                         </div>
 
-                        <div v-if="isEditing">
-                            <InputLabel for="is_active" value="Status" />
+                        <div>
+                            <InputLabel for="status" value="Status *" />
                             <select
-                                id="is_active"
-                                v-model="form.is_active"
+                                id="status"
+                                v-model="form.status"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required
                             >
-                                <option :value="true">Aktif</option>
-                                <option :value="false">Tidak Aktif</option>
+                                <option value="Aktif">Aktif</option>
+                                <option value="Lulus">Lulus</option>
+                                <option value="Pindah">Pindah</option>
+                                <option value="Keluar">Keluar</option>
                             </select>
-                            <InputError :message="form.errors.is_active" class="mt-2" />
+                            <InputError :message="form.errors.status" class="mt-2" />
                         </div>
                     </div>
 

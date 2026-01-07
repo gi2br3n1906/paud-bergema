@@ -175,7 +175,8 @@ defineProps({
                         </div>
 
                         <div class="mt-6 grid grid-cols-2 gap-3">
-                            <button
+                            <Link
+                                :href="route('teacher.daily-logs.index', { classroom_id: classroom.id })"
                                 class="rounded-lg border border-blue-300 bg-blue-50 px-4 py-3 text-center text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
                             >
                                 <svg
@@ -192,9 +193,10 @@ defineProps({
                                     />
                                 </svg>
                                 Log Harian
-                            </button>
+                            </Link>
 
-                            <button
+                            <Link
+                                :href="route('teacher.growth-records.index', { classroom_id: classroom.id })"
                                 class="rounded-lg border border-green-300 bg-green-50 px-4 py-3 text-center text-sm font-medium text-green-700 hover:bg-green-100 transition-colors"
                             >
                                 <svg
@@ -211,15 +213,16 @@ defineProps({
                                     />
                                 </svg>
                                 Tumbuh Kembang
-                            </button>
+                            </Link>
                         </div>
 
                         <div class="mt-3">
-                            <button
+                            <Link
+                                :href="route('teacher.growth-records.index', { classroom_id: classroom.id })"
                                 class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                             >
                                 Lihat Daftar Siswa
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
