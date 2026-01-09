@@ -7,7 +7,8 @@ use App\Http\Controllers\Admin\DapodikImportController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\TeacherController;
-use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
+use App\Http\Controllers\Parent\AuthController as ParentAuthController;
+use App\Http\Controllers\Parent\ParentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Teacher\AssessmentController;
 use App\Http\Controllers\Teacher\DailyLogController;
@@ -80,8 +81,20 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
 
     // Report Cards Management
     Route::get('/reports', [ReportCardController::class, 'index'])->name('reports.index');
+    Route::get('/reports/statistics', [ReportCardController::class, 'statistics'])->name('reports.statistics');
     Route::get('/reports/{classroom}/{term}/students', [ReportCardController::class, 'students'])->name('reports.students');
     Route::get('/reports/{student}/{term}', [ReportCardController::class, 'preview'])->name('reports.preview');
+    Route::get('/reports/{student}/{term}/assess', [ReportCardController::class, 'assess'])->name('reports.assess');
+    Route::post('/reports/{student}/{term}/assess', [ReportCardController::class, 'saveAssessment'])->name('reports.save-assessment');
+    Route::get('/reports/{student}/{term}/pdf', [ReportCardController::class, 'previewPdf'])->name('reports.preview-pdf');
+    Route::post('/reports/{student}/{term}/generate-narrative/{aspect}', [ReportCardController::class, 'generateNarrative'])
+        ->middleware('throttle:20,1')
+        ->name('reports.generate-narrative');
+    Route::post('/reports/{student}/{term}/generate-narratives', [ReportCardController::class, 'generateBulkNarratives'])
+        ->middleware('throttle:5,1')
+        ->name('reports.generate-bulk-narratives');
+    Route::post('/reports/{student}/{term}/publish', [ReportCardController::class, 'publishReportCard'])->name('reports.publish');
+    Route::get('/reports/{student}/{term}/download', [ReportCardController::class, 'downloadPdf'])->name('reports.download-pdf');
 
     // Class Journals Management
     Route::get('/class-journals', [\App\Http\Controllers\Teacher\ClassJournalController::class, 'index'])->name('class-journals.index');
@@ -99,9 +112,22 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::get('/daily-logs/students-by-classroom', [\App\Http\Controllers\Teacher\StudentDailyLogController::class, 'getStudentsByClassroom'])->name('daily-logs.students-by-classroom');
 });
 
-// Parent Routes
-Route::middleware(['auth', 'role:parent'])->prefix('parent')->name('parent.')->group(function () {
-    Route::get('/dashboard', [ParentDashboardController::class, 'index'])->name('dashboard');
+// Parent Authentication Routes (Guest only)
+Route::prefix('parent')->name('parent.')->group(function () {
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', [ParentAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [ParentAuthController::class, 'login']);
+    });
+});
+
+// Parent Routes (Authenticated parents only)
+Route::middleware(['auth', 'parent'])->prefix('parent')->name('parent.')->group(function () {
+    Route::post('/logout', [ParentAuthController::class, 'logout'])->name('logout');
+
+    Route::get('/dashboard', [ParentController::class, 'dashboard'])->name('dashboard');
+    Route::get('/students/{student}', [ParentController::class, 'studentProfile'])->name('students.profile');
+    Route::get('/students/{student}/reports/{term}', [ParentController::class, 'reportCard'])->name('students.reports.view');
+    Route::get('/students/{student}/reports/{term}/download', [ParentController::class, 'downloadPdf'])->name('students.reports.download');
 });
 
 // Profile Routes (accessible by all authenticated users)

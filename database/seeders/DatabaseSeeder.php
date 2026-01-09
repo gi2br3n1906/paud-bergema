@@ -249,6 +249,11 @@ Tulislah 1 paragraf naratif (100-150 kata) yang menggambarkan perkembangan kogni
             'is_active' => true,
         ]);
 
+        // 8. Call AssessmentAspectSeeder for comprehensive aspects with ordering
+        $this->call([
+            AssessmentAspectSeeder::class,
+        ]);
+
         $this->command->info('✅ Database seeded successfully!');
         $this->command->info('📧 Admin: admin@paud.test | Password: password');
         $this->command->info('👨‍🏫 Teacher: siti@paud.test | Password: password');

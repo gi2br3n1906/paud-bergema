@@ -13,11 +13,9 @@ class ReportDetail extends Model
     protected $fillable = [
         'report_card_id',
         'assessment_aspect_id',
+        'score',
         'keywords',
-        'predicate',
-        'ai_generated_narrative',
-        'final_narrative',
-        'generation_status',
+        'narrative',
     ];
 
     // Relationships
@@ -34,49 +32,45 @@ class ReportDetail extends Model
 
     // Scopes
 
-    public function scopePending($query)
+    public function scopeForReport($query, int $reportCardId)
     {
-        return $query->where('generation_status', 'pending');
+        return $query->where('report_card_id', $reportCardId);
     }
 
-    public function scopeCompleted($query)
+    public function scopeByScore($query, string $score)
     {
-        return $query->where('generation_status', 'completed');
-    }
-
-    public function scopeFailed($query)
-    {
-        return $query->where('generation_status', 'failed');
+        return $query->where('score', $score);
     }
 
     // Helper methods
 
-    public function markAsProcessing(): void
+    public function getScoreLabel(): string
     {
-        $this->update(['generation_status' => 'processing']);
+        return match ($this->score) {
+            'BB' => 'Belum Berkembang',
+            'MB' => 'Mulai Berkembang',
+            'BSH' => 'Berkembang Sesuai Harapan',
+            'BSB' => 'Berkembang Sangat Baik',
+            default => '-',
+        };
     }
 
-    public function markAsCompleted(string $narrative): void
+    public function getKeywordsArray(): array
     {
-        $this->update([
-            'ai_generated_narrative' => $narrative,
-            'final_narrative' => $narrative, // Default to AI output
-            'generation_status' => 'completed',
-        ]);
+        if (empty($this->keywords)) {
+            return [];
+        }
+
+        // Support both comma-separated and JSON format
+        if (str_starts_with(trim($this->keywords), '[')) {
+            return json_decode($this->keywords, true) ?? [];
+        }
+
+        return array_map('trim', explode(',', $this->keywords));
     }
 
-    public function markAsFailed(): void
+    public function setKeywordsFromArray(array $keywords): void
     {
-        $this->update(['generation_status' => 'failed']);
-    }
-
-    public function isPending(): bool
-    {
-        return $this->generation_status === 'pending';
-    }
-
-    public function isCompleted(): bool
-    {
-        return $this->generation_status === 'completed';
+        $this->keywords = implode(', ', array_filter($keywords));
     }
 }

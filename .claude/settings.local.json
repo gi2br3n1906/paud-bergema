@@ -9,7 +9,9 @@
       "Bash(npm run dev:*)",
       "Bash(netstat:*)",
       "Bash(findstr:*)",
-      "Bash(del /q \"d:\\\\Coding\\\\Project Kerjaan\\\\Perpus\\\\paud-app\\\\storage\\\\framework\\\\sessions\\\\*\")"
+      "Bash(del /q \"d:\\\\Coding\\\\Project Kerjaan\\\\Perpus\\\\paud-app\\\\storage\\\\framework\\\\sessions\\\\*\")",
+      "Bash(del \"database\\\\migrations\\\\2026_01_08_203620_create_report_details_table.php\")",
+      "Bash(composer require:*)"
     ]
   }
 }

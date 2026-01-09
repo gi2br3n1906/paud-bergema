@@ -46,11 +46,10 @@ const props = defineProps({
                 </div>
 
                 <div v-else class="divide-y divide-gray-200">
-                    <Link
+                    <div
                         v-for="student in students"
                         :key="student.id"
-                        :href="route('teacher.reports.preview', { student: student.id, term: academicTerm.id })"
-                        class="block px-6 py-4 hover:bg-gray-50 transition-colors"
+                        class="px-6 py-4 hover:bg-gray-50 transition-colors"
                     >
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-4">
@@ -67,11 +66,30 @@ const props = defineProps({
                                 </div>
                             </div>
 
-                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
+                            <div class="flex items-center space-x-2">
+                                <Link
+                                    :href="route('teacher.reports.assess', { student: student.id, term: academicTerm.id })"
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                >
+                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Input Penilaian
+                                </Link>
+
+                                <Link
+                                    :href="route('teacher.reports.preview', { student: student.id, term: academicTerm.id })"
+                                    class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                >
+                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Lihat Raport
+                                </Link>
+                            </div>
                         </div>
-                    </Link>
+                    </div>
                 </div>
             </div>
         </div>

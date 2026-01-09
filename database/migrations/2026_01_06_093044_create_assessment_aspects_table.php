@@ -13,12 +13,15 @@ return new class extends Migration
     {
         Schema::create('assessment_aspects', function (Blueprint $table) {
             $table->id();
+            $table->string('category', 100)->comment('e.g. NAM, Kognitif, Fisik Motorik');
             $table->string('name', 255);
-            $table->string('category', 100)->comment('e.g. Nilai Agama dan Moral, Kognitif, Fisik Motorik');
             $table->text('description')->nullable();
+            $table->integer('order')->default(0)->comment('Display order');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->index('category');
+            $table->index('order');
         });
     }
 

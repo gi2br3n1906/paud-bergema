@@ -11,16 +11,17 @@ class AssessmentAspect extends Model
     use HasFactory;
 
     protected $fillable = [
+        'category',
         'name',
         'description',
-        'display_order',
+        'order',
         'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'display_order' => 'integer',
+            'order' => 'integer',
             'is_active' => 'boolean',
         ];
     }
@@ -41,6 +42,6 @@ class AssessmentAspect extends Model
 
     public function scopeOrdered($query)
     {
-        return $query->orderBy('display_order');
+        return $query->orderBy('order');
     }
 }
